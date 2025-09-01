@@ -15,13 +15,11 @@ git clone https://github.com/RodrigoKND/homemart.git
 ```
 2. Instala las dependencias
 ```bash
-pnpm install
+npm install
 ```
 3. Corre el proyecto
 
 ```bash
-pnpm run dev
+npm run dev
 ```
-#### Si no eres colaborador puedes participar y crear tu rama de feature
-
-Si no cuenta con el instalador de paquetes pnpm, puede explorar el proceso de instalación <a target="_blank" href="https://pnpm.io/es/installation" rel="noopener">aquí</a>
+#### Si no eres colaborador puedes participar y crear tu rama dentro de features
