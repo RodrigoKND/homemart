@@ -1,12 +1,13 @@
 import { ProductCard } from './ProductCard';
 import { ProductCardSkeleton } from './ProductCardSkeleton';
-import { Product } from '@/data/products';
+import { ProductWithOffer } from '@/types/database.types';
 
 interface ProductGridProps {
-  products: Product[];
+  products: ProductWithOffer[];
   isLoading?: boolean;
   className?: string;
 }
+
 
 export const ProductGrid = ({ products, isLoading = false, className = "" }: ProductGridProps) => {
   if (isLoading) {

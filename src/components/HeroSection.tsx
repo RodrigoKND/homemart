@@ -12,13 +12,13 @@ export const HeroSection = () => {
               Transforma tu
               <br />
               <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
-                Hogar Ideal
+                Cuidado Personal
               </span>
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Descubre productos de calidad premium para cada rincón de tu hogar. Desde
-              dormitorio hasta cocina, tenemos todo lo que necesitas para crear el espacio
-              perfecto.
+              Descubre productos de calidad premium para el cuidado personal. Nos brindamos una
+              amplia variedad de productos para que puedas elegir lo que más te
+              convenga.
             </p>
           </div>
 
@@ -39,18 +39,6 @@ export const HeroSection = () => {
                 Ver Categorias
               </div>
             </a>
-          </div>
-
-          {/* Stats */}
-          <div className="flex justify-center space-x-12 pt-12">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-gray-900">500+</div>
-              <div className="text-sm text-gray-600 mt-1">Productos</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-gray-900">50+</div>
-              <div className="text-sm text-gray-600 mt-1">Marcas</div>
-            </div>
           </div>
         </div>
       </div>

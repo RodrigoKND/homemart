@@ -8,7 +8,6 @@ import { FilterSidebar } from '@/components/FilterSidebar';
 import { MobileFilterDrawer } from '@/components/MobileFilterDrawer';
 import { useFilters } from '@/hooks/useFilters';
 import { useMobile } from '@/hooks/useMobile';
-import { products } from '@/data/products';
 
 export const CatalogPage = () => {
   const [searchParams] = useSearchParams();

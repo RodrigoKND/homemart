@@ -1,34 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { X, SprayCan } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useCategory } from '@/hooks/useCategory';
+import { useProducts } from "@/hooks/useProducts";
+import { supabase } from '@/model/createClient';
+import { useBrand } from '@/hooks/useBrand';
 
-type OfferType = 'fixed' | 'percentage';
-
-interface Product {
-  id: number;
-  brand: string;
-  description: string;
-  category: string;
-  quantity: number;
-  name: string;
-  price: number;
-  isOffer: boolean;
-  offerType: OfferType;
-  offerValue: number;
-  offerUntil?: string;
-  image: string | null;
-  isHighlighted: boolean;
-}
-
-const categories = [
-  'Cuidado facial',
-  'Maquillaje',
-  'Perfumes',
-  'Cuidado corporal',
-];
 
 export default function DynamicProductForm({ onClose }: { onClose: () => void }) {
-  const [product, setProduct] = useState<Product>({
+  const [product, setProduct] = useState({
     id: new Date().getTime(),
     brand: '',
     description: '',
@@ -43,6 +23,11 @@ export default function DynamicProductForm({ onClose }: { onClose: () => void })
     image: null,
     isHighlighted: false,
   });
+  const { createProduct } = useProducts();
+const { brands } = useBrand();
+
+
+  const { categories } = useCategory();
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [finalPrice, setFinalPrice] = useState<number>(0);
@@ -80,34 +65,103 @@ export default function DynamicProductForm({ onClose }: { onClose: () => void })
     setProduct((p) => ({ ...p, isHighlighted: e.target.checked }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProduct((p) => ({ ...p, image: reader.result as string }));
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+ const [file, setFile] = useState<File | null>(null);
+
+const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadedFile = e.target.files?.[0];
+  if (!uploadedFile) return;
+
+  setFile(uploadedFile); // guardamos el archivo real
+
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    setImagePreview(reader.result as string); // solo para previsualizar
   };
+  reader.readAsDataURL(uploadedFile);
+};
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (finalPrice > product.price) {
-      toast.error('El precio final no puede ser mayor que el precio original');
-      return;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (finalPrice > product.price) {
+    toast.error("El precio final no puede ser mayor que el precio original");
+    return;
+  }
+
+  if (
+    product.brand === "" ||
+    product.description === "" ||
+    product.category === "" ||
+    product.quantity === 0 ||
+    product.price === 0 ||
+    !file
+  ) {
+    toast.error("Todos los campos son obligatorios, a excepción de oferta");
+    return;
+  }
+
+  try {
+    // 1. Subir imagen a Supabase Storage
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const { error: uploadError } = await supabase.storage
+      .from("products")
+      .upload(fileName, file);
+
+    if (uploadError) throw uploadError;
+
+    // 2. Obtener URL pública
+    const { data: urlData } = supabase.storage
+      .from("products")
+      .getPublicUrl(fileName);
+
+    const imageUrl = urlData.publicUrl;
+
+    // 3. Insertar producto en DB
+    const { data: insertedProduct, error: insertError } = await supabase
+      .from("productos")
+      .insert([
+        {
+          nombre: product.name,
+          descripcion: product.description,
+          marca_id: product.brand,       // 👈 debe ser UUID
+          categoria_id: product.category, // 👈 debe ser UUID
+          cantidad: product.quantity,
+          precio_base: product.price,
+          imagen_url: imageUrl,
+          esta_en_oferta: product.isOffer,
+          es_destacado: product.isHighlighted,
+        },
+      ])
+      .select()
+      .single();
+
+    if (insertError) throw insertError;
+
+    // 4. Si tiene oferta, insertarla en tabla `ofertas`
+    if (product.isOffer) {
+      const { error: offerError } = await supabase.from("ofertas").insert([
+        {
+          producto_id: insertedProduct.id,
+          tipo_oferta: product.offerType || "precio_fijo",
+          valor_descuento: product.offerValue || 0,
+          precio_especial: finalPrice,
+          precio_final: finalPrice,
+          fecha_fin: product.offerUntil || null,
+        },
+      ]);
+      if (offerError) throw offerError;
     }
 
-    if (product.brand === '' || product.description === '' || product.category === '' || product.quantity === 0 || product.price === 0 || product.image === null) {
-      toast.error('Todos los campos son obligatorios, a excepción de oferta');
-      return;
-    }
-
-    const stored = JSON.parse(sessionStorage.getItem('products') || '[]');
-    sessionStorage.setItem('products', JSON.stringify([...stored, product]));
-    toast.success('Producto guardado!');
+    toast.success("Producto guardado en la base de datos!");
     onClose();
-  };
+  } catch (error) {
+    console.error(error);
+    toast.error("Error al guardar el producto");
+  }
+};
+
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center md:p-4 p-0 z-50 overflow-y-auto">
@@ -160,15 +214,21 @@ export default function DynamicProductForm({ onClose }: { onClose: () => void })
             <div className="mb-6 md:w-1/2 w-full">
               <label className="block text-sm text-white font-medium mb-2 uppercase tracking-wider">Marca</label>
               <div className="relative">
-                <input
-                  name="brand"
-                  value={product.brand}
-                  onChange={handleChange}
-                  required
-                  placeholder="Ej: L'Oréal"
-                  maxLength={25}
-                  className="w-full bg-pink-300/20 placeholder:text-white text-white border border-gray-200 rounded-lg px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-pink-200 transition-all duration-200 shadow-sm hover:shadow-md"
-                />
+                <select
+  name="brand"
+  value={product.brand}
+  onChange={handleChange}
+  required
+  className="dropdown-menu w-full p-3 border-2 bg-pink-300/20 text-white rounded-lg"
+>
+  <option value="" disabled>Seleccione una marca</option>
+  {brands?.map((brand) => (
+    <option key={brand.id} value={brand.id}>
+      {brand.nombre}
+    </option>
+  ))}
+</select>
+
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <svg className="w-5 h-5 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -199,17 +259,18 @@ export default function DynamicProductForm({ onClose }: { onClose: () => void })
             <label className="block text-sm text-white font-medium mb-2 uppercase tracking-wider">Categoría</label>
             <div className="relative">
               <select
-                name="category"
-                value={product.category}
-                onChange={handleChange}
-                required
-                className="dropdown-menu w-full p-3 border-2 bg-pink-300/20 text-white"
-              >
-                <option value="" disabled>Seleccione una categoría</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+  name="category"
+  value={product.category}
+  onChange={handleChange}
+  required
+  className="dropdown-menu w-full p-3 border-2 bg-pink-300/20 text-white"
+>
+  <option value="" disabled>Seleccione una categoría</option>
+  {categories?.map((cat) => (
+    <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+  ))}
+</select>
+
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>

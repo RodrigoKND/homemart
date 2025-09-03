@@ -1,6 +1,9 @@
+import { useCategory } from "@/hooks/useCategory";
 import { Link } from "react-router-dom";
 
 export function Footer() {
+  const { categories } = useCategory();
+
   return (
     <footer className="bg-pink-100 border-t border-gray-100">
       <div className="p-9">
@@ -16,8 +19,8 @@ export function Footer() {
               </span>
             </div>
             <p className="text-gray-600 text-sm">
-              Tu destino para productos del hogar de alta calidad. Descubre lo mejor en decoración, organización y
-              confort para tu hogar.
+              Tu destino para cosméticos de alta calidad. Descubre lo
+              mejor en cuidado de la piel, maquillaje y bienestar personal.
             </p>
           </div>
 
@@ -25,39 +28,18 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold text-gray-800">Categorías</h3>
             <ul className="space-y-2 text-sm">
-              <li>
-                <Link to="/catalog?category=bedroom" className="text-gray-600 hover:text-pink-500 transition-colors">
-                  Dormitorio
-                </Link>
-              </li>
-              <li>
-                <Link to="/catalog?category=living" className="text-gray-600 hover:text-pink-500 transition-colors">
-                  Sala de Estar
-                </Link>
-              </li>
-              <li>
-                <Link to="/catalog?category=kitchen" className="text-gray-600 hover:text-pink-500 transition-colors">
-                  Cocina
-                </Link>
-              </li>
-              <li>
-                <Link to="/catalog?category=bathroom" className="text-gray-600 hover:text-pink-500 transition-colors">
-                  Baño
-                </Link>
-              </li>
-              <li>
-                <Link to="/catalog?category=lighting" className="text-gray-600 hover:text-pink-500 transition-colors">
-                  Iluminación
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/catalog?category=decoration"
-                  className="text-gray-600 hover:text-pink-500 transition-colors"
-                >
-                  Decoración
-                </Link>
-              </li>
+              {
+                categories.map((category) => (
+                  <li key={category.id}>
+                    <Link
+                      to={`/catalog?category=${category.nombre.split(' ').join('-').toLowerCase()}`}
+                      className="text-gray-600 hover:text-pink-500 transition-colors"
+                    >
+                      {category.nombre}
+                    </Link>
+                  </li>
+                ))
+              }
             </ul>
           </div>
         </div>

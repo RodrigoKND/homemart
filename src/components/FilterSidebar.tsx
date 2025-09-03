@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
 import { Filters } from '@/hooks/useFilters';
-import { brands, categories, priceRanges } from '@/data/products';
+import { categories, priceRanges } from '@/data/products';
 
 interface FilterSidebarProps {
   filters: Filters;
@@ -16,11 +16,11 @@ interface FilterSidebarProps {
   className?: string;
 }
 
-export const FilterSidebar = ({ 
-  filters, 
-  onFiltersChange, 
-  onClearFilters, 
-  className = "" 
+export const FilterSidebar = ({
+  filters,
+  onFiltersChange,
+  onClearFilters,
+  className = ""
 }: FilterSidebarProps) => {
   const [openSections, setOpenSections] = useState({
     search: true,
@@ -36,19 +36,11 @@ export const FilterSidebar = ({
     }));
   };
 
-  const handleBrandChange = (brand: string, checked: boolean) => {
-    const newBrands = checked 
-      ? [...filters.brand, brand]
-      : filters.brand.filter(b => b !== brand);
-    
-    onFiltersChange({ brand: newBrands });
-  };
-
   const handleCategoryChange = (category: string, checked: boolean) => {
-    const newCategories = checked 
+    const newCategories = checked
       ? [...filters.category, category]
       : filters.category.filter(c => c !== category);
-    
+
     onFiltersChange({ category: newCategories });
   };
 
@@ -56,10 +48,10 @@ export const FilterSidebar = ({
     onFiltersChange({ priceRange: range });
   };
 
-  const activeFiltersCount = 
-    filters.brand.length + 
-    filters.category.length + 
-    (filters.priceRange ? 1 : 0) + 
+  const activeFiltersCount =
+    filters.brand.length +
+    filters.category.length +
+    (filters.priceRange ? 1 : 0) +
     (filters.search ? 1 : 0);
 
   return (
@@ -113,23 +105,18 @@ export const FilterSidebar = ({
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-3">
             <div className="space-y-3">
-              {brands.map((brand) => (
-                <div key={brand.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`brand-${brand.id}`}
-                    checked={filters.brand.includes(brand.name)}
-                    onCheckedChange={(checked) => 
-                      handleBrandChange(brand.name, checked as boolean)
-                    }
-                  />
-                  <Label 
-                    htmlFor={`brand-${brand.id}`} 
-                    className="text-sm font-normal cursor-pointer"
-                  >
-                    {brand.name}
-                  </Label>
-                </div>
-              ))}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={`brand-natura`}
+                  checked={true}
+                />
+                <Label
+                  htmlFor={`brand-natura`}
+                  className="text-sm font-normal cursor-pointer"
+                >
+                  Natura
+                </Label>
+              </div>
             </div>
           </CollapsibleContent>
         </Collapsible>
@@ -153,12 +140,12 @@ export const FilterSidebar = ({
                   <Checkbox
                     id={`category-${category}`}
                     checked={filters.category.includes(category)}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleCategoryChange(category, checked as boolean)
                     }
                   />
-                  <Label 
-                    htmlFor={`category-${category}`} 
+                  <Label
+                    htmlFor={`category-${category}`}
                     className="text-sm font-normal cursor-pointer"
                   >
                     {category}
@@ -188,7 +175,7 @@ export const FilterSidebar = ({
                   <Checkbox
                     id={`price-${index}`}
                     checked={
-                      filters.priceRange?.min === range.min && 
+                      filters.priceRange?.min === range.min &&
                       filters.priceRange?.max === range.max
                     }
                     onCheckedChange={(checked) => {
@@ -199,8 +186,8 @@ export const FilterSidebar = ({
                       }
                     }}
                   />
-                  <Label 
-                    htmlFor={`price-${index}`} 
+                  <Label
+                    htmlFor={`price-${index}`}
                     className="text-sm font-normal cursor-pointer"
                   >
                     {range.label}

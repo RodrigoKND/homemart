@@ -1,23 +1,18 @@
-import { products } from '@/data/products';
 import { ProductGrid } from './ProductGrid';
+import { useProducts } from '@/hooks/useProducts';
 
 export const FeaturedProducts = () => {
+  const { products, loading, error } = useProducts();
 
-  // 1. Leer del sessionStorage de forma segura
-  const storedProducts = sessionStorage.getItem('products');
-  let productsFromStorage = [];
-  try {
-    productsFromStorage = storedProducts ? JSON.parse(storedProducts) : [];
-  } catch (error) {
-    console.error('Error parsing stored products:', error);
-    productsFromStorage = [];
+  // 2. Estado de carga y errores
+  if (loading) {
+    return <p className="text-center py-10">Cargando productos...</p>;
   }
 
-  // 2. Combinar productos reales + almacenados
-  const allProducts = [...products, ...productsFromStorage];
-  // 3. Filtrar solo los destacados
-  const featuredProducts = allProducts.filter((product) => product.featured || product.isHighlighted).sort((a, b) => b.id - a.id);
-  
+  if (error) {
+    return <p className="text-center text-red-500 py-10">Error: {error}</p>;
+  }
+
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
@@ -28,7 +23,7 @@ export const FeaturedProducts = () => {
           </p>
         </div>
 
-        <ProductGrid products={featuredProducts} />
+        <ProductGrid products={products} />
       </div>
     </section>
   );

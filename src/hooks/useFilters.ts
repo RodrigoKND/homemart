@@ -22,7 +22,7 @@ export const useFilters = (products: Product[]) => {
         return products.filter((product) => {
             // Filter by brand
             if (
-                filters.brand.length > 0 &&
+                filters.length > 0 &&
                 !filters.brand.includes(product.brand)
             ) {
                 return false;

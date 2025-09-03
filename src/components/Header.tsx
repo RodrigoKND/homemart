@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, ChevronDown } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { brands, products } from '@/data/products';
+import { products } from '@/data/products';
 import AuthModal from '@/components/AuthModal';
 import AddProductForm from './AddProduct';
 
@@ -13,7 +12,6 @@ export const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
   const navItems = [
     { name: 'Inicio', href: '/' },
@@ -40,10 +38,6 @@ export const Header = () => {
     product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.category.toLowerCase().includes(searchQuery.toLowerCase())
   ).slice(0, 5);
-
-  const handleBrandSelect = (brandName: string) => {
-    navigate(`/brand/${encodeURIComponent(brandName)}`);
-  };
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
@@ -79,27 +73,6 @@ export const Header = () => {
                       {item.name}
                     </Link>
                   ))}
-
-                  {/* Dropdown */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="text-sm w-auto font-medium text-gray-600 hover:text-pink-500">
-                        Marcas
-                        <ChevronDown className="ml-1 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="center" className="w-48">
-                      {brands.map((brand) => (
-                        <DropdownMenuItem
-                          key={brand.id}
-                          onClick={() => handleBrandSelect(brand.name)}
-                          className="cursor-pointer"
-                        >
-                          {brand.name}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </nav>
               </div>
             </div>
@@ -193,30 +166,6 @@ export const Header = () => {
                     {item.name}
                   </Link>
                 ))}
-
-                {/* Dropdown de marcas */}
-                <div className="w-full relative">
-                  <select
-                    className="w-full dropdown-menu"
-                    onChange={(e) => {
-                      handleBrandSelect(e.target.value);
-                      setIsMenuOpen(false);
-                    }}
-                    defaultValue=""
-                  >
-                    <option value="" disabled>
-                      Marcas
-                    </option>
-                    {brands.map((brand, index) => (
-                      <option key={index} value={brand.name} className="hover:bg-gray-50 cursor-pointer">
-                        {brand.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  {/* Ícono de flecha como el Dropdown */}
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                </div>
 
                 {/* Input de búsqueda y botón */}
                 <div className="w-full relative">

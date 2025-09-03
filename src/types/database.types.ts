@@ -107,37 +107,13 @@ export interface ProductsContextType {
   mostRequestedProducts: MostRequestedProduct[];
   loading: boolean;
   error: string | null;
-
-  // Product operations
   fetchProducts: (filters?: ProductFilters) => Promise<void>;
-  fetchProductById: (id: string) => Promise<ProductWithOffer | null>;
-  createProduct: (data: CreateProductData) => Promise<Product | null>;
-  updateProduct: (id: string, data: Partial<CreateProductData>) => Promise<Product | null>;
-  deleteProduct: (id: string) => Promise<boolean>;
-
-  // Category operations
+  fetchProductById: (id: string) => Promise<void>;
+  createProduct: (data: CreateProductData) => Promise<void>;
   fetchCategories: () => Promise<void>;
-  createCategory: (name: string, description?: string) => Promise<Category | null>;
-  updateCategory: (id: string, name: string, description?: string) => Promise<Category | null>;
-  deleteCategory: (id: string) => Promise<boolean>;
-
-  // Brand operations
+  createCategory: (name: string, description?: string) => Promise<void>;
   fetchBrands: () => Promise<void>;
-  createBrand: (name: string, description?: string) => Promise<Brand | null>;
-  updateBrand: (id: string, name: string, description?: string) => Promise<Brand | null>;
-  deleteBrand: (id: string) => Promise<boolean>;
-
-  // Offer operations
-  createOffer: (data: CreateOfferData) => Promise<Offer | null>;
-  updateOffer: (id: string, data: Partial<CreateOfferData>) => Promise<Offer | null>;
-  deleteOffer: (id: string) => Promise<boolean>;
-
-  // Analytics
-  fetchMostRequestedProducts: () => Promise<void>;
-  registerWhatsAppConsultation: (productId: string, sessionData?: Partial<ConsultationData>) => Promise<boolean>;
-
-  // Utilities
-  refreshData: () => Promise<void>;
+  createBrand: (name: string, description?: string) => Promise<void>;
 }
 
 export interface ProductFilters {
